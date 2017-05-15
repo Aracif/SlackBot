@@ -24,7 +24,7 @@ def handle_command(command, channel):
     riven =  "What is broken can be reforged."
     response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
                "* command with numbers, delimited by spaces."
-    if command == "yas":
+    if command == "yas" or "yasuo":
         slack_client.api_call("chat.postMessage", channel=channel,
                               text=yasuo, as_user=True)
     elif command == "riven":
