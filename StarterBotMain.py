@@ -5,7 +5,7 @@ from slackclient import SlackClient
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
-
+print(BOT_ID)
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
 EXAMPLE_COMMAND = "do"
@@ -21,11 +21,15 @@ def handle_command(command, channel):
         returns back what it needs for clarification.
     """
     yasuo = "Theres no cure for fools"
+    riven =  "What is broken can be reforged."
     response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
                "* command with numbers, delimited by spaces."
     if command == "yas":
         slack_client.api_call("chat.postMessage", channel=channel,
                               text=yasuo, as_user=True)
+    elif command == "riven":
+        slack_client.api_call("chat.postMessage", channel=channel,
+                              text=riven, as_user=True)
     else:
         response = "Sure...write some more code then I can do that!"
         slack_client.api_call("chat.postMessage", channel=channel,
