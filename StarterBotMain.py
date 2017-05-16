@@ -18,35 +18,41 @@ ClIENT_IP = "RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e" #Need to set this to en
 def handle_command(command, channel):
     commandMutator = command
     slackIn = (str(commandMutator)).split(" ", 1)#str(command).replace(" ","").lower()
-    slackOption = slackIn[0]
-    slackValue = slackIn[1]
+    print(slackIn)
+    if len(slackIn) == 2:
 
+        slackOption = slackIn[0]
+        slackValue = slackIn[1].replace(" ","")
+        print(slackOption)
+        print(slackValue)
 
-    if slackOption == "r":
-        slackValue.replace(" ", "").lower()
+        if slackOption == "r":
+            slackValue.replace(" ", "").lower()
 
-        summonerJSON = API_Getter.requestSummonerData(NA_1, slackValue, ClIENT_IP)
-        if "status" in summonerJSON:
-            slack_client.api_call("chat.postMessage", channel=channel,
-                                  text=str(summonerJSON['status']['message']), as_user=True)
+            summonerJSON = API_Getter.requestSummonerData(NA_1, slackValue, ClIENT_IP)
+            if "status" in summonerJSON:
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                      text=str(summonerJSON['status']['message']), as_user=True)
+            else:
+                summonerRankedJSON = API_Getter.requestRankedData(NA, (str(summonerJSON['id'])), ClIENT_IP)
+                summonerName = summonerJSON['name']
+                summonerID = str(summonerJSON['id'])
+                summonerTier = summonerRankedJSON[summonerID][0]['tier']
+                summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
+                summonerLeaguePoints =  str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
+                displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints + "LP"
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                   text=displayText, as_user=True)
         else:
-            summonerRankedJSON = API_Getter.requestRankedData(NA, (str(summonerJSON['id'])), ClIENT_IP)
-            summonerName = summonerJSON['name']
-            summonerID = str(summonerJSON['id'])
-            summonerTier = summonerRankedJSON[summonerID][0]['tier']
-            summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
-            summonerLeaguePoints =  str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
-            displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints
-            slack_client.api_call("chat.postMessage", channel=channel,
-                               text=displayText, as_user=True)
+             slack_client.api_call("chat.postMessage", channel=channel,
+                                   text="I stand resolute! Enter a real option.", as_user=True)
+             """
+                 Receives commands directed at the bot and determines if they
+                 are valid commands. If so, then acts on the commands. If not,
+                 returns back what it needs for clarification."""
     else:
-         slack_client.api_call("chat.postMessage", channel=channel,
-                               text="I stand resolute! Enter a real option.", as_user=True)
-         """
-             Receives commands directed at the bot and determines if they
-             are valid commands. If so, then acts on the commands. If not,
-             returns back what it needs for clarification.
-         """
+        slack_client.api_call("chat.postMessage", channel=channel,
+                              text="I stand resolute! Enter a real option.", as_user=True)
 
 
 def parse_slack_output(slack_rtm_output):
@@ -70,8 +76,9 @@ if __name__ == "__main__":
     if slack_client.rtm_connect():
         print("Irelia connected and running!")
         while True:
+
             command, channel = parse_slack_output(slack_client.rtm_read())
-            
+
             if command and channel:
                 handle_command(command, channel)
             time.sleep(READ_WEBSOCKET_DELAY)
