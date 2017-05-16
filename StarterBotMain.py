@@ -8,36 +8,44 @@ BOT_ID = os.environ.get("BOT_ID")
 
 # constants
 AT_BOT = "<@" + BOT_ID + ">"
-
-# instantiate Slack & Twilio clients
+NA_1 = "na1"
+NA = "na"
+RANKED_DATA = "r"
+# instantiate Slack
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
+ClIENT_IP = "RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e" #Need to set this to enviroment variable - SF
 
-ClIENT_IP = "RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e"
 def handle_command(command, channel):
-    slackIn = str(command).replace(" ","")
-    s1,s2,s3 = API_Getter.GetChampStats("na", slackIn, ClIENT_IP)
+    slackIn = str(command).split(" ", 1)#str(command).replace(" ","").lower()
+    slackOption = slackIn[0]
+    slackValue = slackIn[1]
 
-    slack_client.api_call("chat.postMessage", channel=channel,
-                              text=s1, as_user=True)
-    """
-        Receives commands directed at the bot and determines if they
-        are valid commands. If so, then acts on the commands. If not,
-        returns back what it needs for clarification.
-   
-    yasuo = "Theres no cure for fools"
-    riven =  "What is broken can be reforged."
-    response = "Not sure what you mean. Use the *" + EXAMPLE_COMMAND + \
-               "* command with numbers, delimited by spaces."
-    if command == "yas" or "yasuo":
-        slack_client.api_call("chat.postMessage", channel=channel,
-                              text=yasuo, as_user=True)
-    elif command == "riven":
-        slack_client.api_call("chat.postMessage", channel=channel,
-                              text=riven, as_user=True)
+
+    if slackOption == "r":
+        slackValue.replace(" ", "").lower()
+
+        summonerJSON = API_Getter.requestSummonerData(NA_1, slackIn, ClIENT_IP)
+        if "status" in summonerJSON:
+            slack_client.api_call("chat.postMessage", channel=channel,
+                                  text=str(summonerJSON['status']['message']), as_user=True)
+        else:
+            summonerRankedJSON = API_Getter.requestRankedData(NA, (str(summonerJSON['id'])), ClIENT_IP)
+            summonerName = summonerJSON['name']
+            summonerID = str(summonerJSON['id'])
+            summonerTier = summonerRankedJSON[summonerID][0]['tier']
+            summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
+            summonerLeaguePoints =  str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
+            displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints
+            slack_client.api_call("chat.postMessage", channel=channel,
+                               text=displayText, as_user=True)
     else:
-        response = "Sure...write some more code then I can do that!"
-        slack_client.api_call("chat.postMessage", channel=channel,
-                          text=response, as_user=True) """
+         slack_client.api_call("chat.postMessage", channel=channel,
+                               text="I stand resolute! Enter a real option.", as_user=True)
+         """
+             Receives commands directed at the bot and determines if they
+             are valid commands. If so, then acts on the commands. If not,
+             returns back what it needs for clarification.
+         """
 
 
 def parse_slack_output(slack_rtm_output):
