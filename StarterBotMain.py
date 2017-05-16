@@ -35,14 +35,18 @@ def handle_command(command, channel):
                                       text=str(summonerJSON['status']['message']), as_user=True)
             else:
                 summonerRankedJSON = API_Getter.requestRankedData(NA, (str(summonerJSON['id'])), ClIENT_IP)
-                summonerName = summonerJSON['name']
-                summonerID = str(summonerJSON['id'])
-                summonerTier = summonerRankedJSON[summonerID][0]['tier']
-                summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
-                summonerLeaguePoints =  str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
-                displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints + "LP"
-                slack_client.api_call("chat.postMessage", channel=channel,
-                                   text=displayText, as_user=True)
+                if "status" in summonerRankedJSON:
+                    slack_client.api_call("chat.postMessage", channel=channel,
+                                          text="Player is noob and unranked, no stats at this time.", as_user=True)
+                else:
+                    summonerName = summonerJSON['name']
+                    summonerID = str(summonerJSON['id'])
+                    summonerTier = summonerRankedJSON[summonerID][0]['tier']
+                    summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
+                    summonerLeaguePoints =  str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
+                    displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints + "LP"
+                    slack_client.api_call("chat.postMessage", channel=channel,
+                                       text=displayText, as_user=True)
         else:
              slack_client.api_call("chat.postMessage", channel=channel,
                                    text="I stand resolute! Enter a real option.", as_user=True)
