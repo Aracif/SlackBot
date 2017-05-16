@@ -16,7 +16,8 @@ slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 ClIENT_IP = "RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e" #Need to set this to enviroment variable - SF
 
 def handle_command(command, channel):
-    slackIn = str(command).split(" ", 1)#str(command).replace(" ","").lower()
+    commandMutator = command
+    slackIn = (str(commandMutator)).split(" ", 1)#str(command).replace(" ","").lower()
     slackOption = slackIn[0]
     slackValue = slackIn[1]
 
@@ -24,7 +25,7 @@ def handle_command(command, channel):
     if slackOption == "r":
         slackValue.replace(" ", "").lower()
 
-        summonerJSON = API_Getter.requestSummonerData(NA_1, slackIn, ClIENT_IP)
+        summonerJSON = API_Getter.requestSummonerData(NA_1, slackValue, ClIENT_IP)
         if "status" in summonerJSON:
             slack_client.api_call("chat.postMessage", channel=channel,
                                   text=str(summonerJSON['status']['message']), as_user=True)
@@ -70,6 +71,7 @@ if __name__ == "__main__":
         print("Irelia connected and running!")
         while True:
             command, channel = parse_slack_output(slack_client.rtm_read())
+            
             if command and channel:
                 handle_command(command, channel)
             time.sleep(READ_WEBSOCKET_DELAY)
