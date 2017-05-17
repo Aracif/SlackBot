@@ -1,5 +1,6 @@
 
 import requests
+import re
 
 #Updated query to use V3 since v2 is being deprecated - Sal 5/16/17
 def requestSummonerData(region, summonerName, APIKey):
@@ -12,14 +13,14 @@ def requestRankedData(region, ID, APIKey):
     response = requests.get(URL)
     return response.json()
 
-
-def GetChampStats(region, summonerName, APIKey):
-    responseJSON = requestSummonerData(region, summonerName, APIKey)
-    ID = responseJSON[summonerName]['id']
-    ID = str(ID)
-    print(ID)
-    responseJSON2 = requestRankedData(region, ID, APIKey)
-    return (str(responseJSON2[ID][0]['tier'])), (str(responseJSON2[ID][0]['entries'][0]['division'])),(str(responseJSON2[ID][0]['entries'][0]['leaguePoints']))
+def requestChampionLoreData():
+    response = requests.get("https://na1.api.riotgames.com/lol/static-data/v3/champions?champListData=lore&dataById=false&locale=en_US&api_key=RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e")
+    return response.json()
+def requestChampionImages():
+    response = requests.get("https://na1.api.riotgames.com/lol/static-data/v3/champions?champListData=image&dataById=false&locale=en_US&api_key=RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e")
+    return response.json()
+def spacedWordsToCamelCase(m):
+    return m.group(1) + m.group(2).upper()
 
 if __name__ == "__main__":
     sumData = requestSummonerData("na1","canwefckinggroup","RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e")
@@ -30,4 +31,6 @@ if __name__ == "__main__":
         rankedData = requestRankedData("na", sumID, "RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e")
         summonerJSON = requestSummonerData("na1","canwefckinggroup","RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e")
         summonerRankedJSON = requestRankedData("na",(str(summonerJSON['id'])),"RGAPI-b3c2d17c-ddfb-46ff-8cb7-bc726d80c59e")
+        championLoreData = requestChampionLoreData()
         print((str(summonerRankedJSON[sumID][0]['tier'])))
+        print(championLoreData["data"]["Jax"]["lore"])

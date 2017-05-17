@@ -1,5 +1,6 @@
 import os
 import time
+import re
 from slackclient import SlackClient
 import API_Getter
 
@@ -22,11 +23,12 @@ def handle_command(command, channel):
     if len(slackIn) == 2:
 
         slackOption = slackIn[0]
-        slackValue = slackIn[1].replace(" ","")
+        slackValue = slackIn[1]
         print(slackOption)
         print(slackValue)
 
         if slackOption == "r":
+
             slackValue.replace(" ", "").lower()
 
             summonerJSON = API_Getter.requestSummonerData(NA_1, slackValue, ClIENT_IP)
@@ -47,6 +49,29 @@ def handle_command(command, channel):
                     displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints + "LP"
                     slack_client.api_call("chat.postMessage", channel=channel,
                                        text=displayText, as_user=True)
+        elif slackOption == "l":
+            championLoreData = API_Getter.requestChampionLoreData()
+            slackValue = re.sub("(^|\s)(\S)", API_Getter.spacedWordsToCamelCase, slackValue).replace(" ","")
+            if slackValue == "Wukong": slackValue = "MonkeyKing"
+            if "status" in championLoreData:
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                      text=str(championLoreData['status']['message']), as_user=True)
+            else:
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                      text=championLoreData["data"][slackValue]["lore"], as_user=True)
+        elif slackOption == "i1" or "i2" or "i3" or "i4":
+            championImageData = API_Getter.requestChampionImages()
+            slackValue = re.sub("(^|\s)(\S)", API_Getter.spacedWordsToCamelCase, slackValue).replace(" ", "")
+            if slackValue == "Wukong": slackValue = "MonkeyKing"
+            if "status" in championImageData:
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                      text=str(championImageData['status']['message']), as_user=True)
+            else:
+                imageURL = str(championImageData["data"][slackValue]["image"]["full"]).replace(".png","_" + list(slackOption)[1] +".jpg")
+                print(imageURL)
+                attach = [{"title": slackValue, "image_url": "http://ddragon.leagueoflegends.com/cdn/img/champion/loading/" + imageURL}]
+                slack_client.api_call("chat.postMessage", channel=channel,
+                                      attachments=attach, as_user=True)
         else:
              slack_client.api_call("chat.postMessage", channel=channel,
                                    text="I stand resolute! Enter a real option.", as_user=True)
