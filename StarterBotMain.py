@@ -59,7 +59,7 @@ def handle_command(command, channel):
             else:
                 slack_client.api_call("chat.postMessage", channel=channel,
                                       text=championLoreData["data"][slackValue]["lore"], as_user=True)
-        elif slackOption == "i1" or "i2" or "i3" or "i4":
+        elif str(list(slackOption)[0]) == "i":
             championImageData = API_Getter.requestChampionImages()
             slackValue = re.sub("(^|\s)(\S)", API_Getter.spacedWordsToCamelCase, slackValue).replace(" ", "")
             if slackValue == "Wukong": slackValue = "MonkeyKing"
