@@ -53,7 +53,7 @@ def handle_command(command, channel):
                     attachmentRankedInfo = json.dumps([
                             {
                                 "fallback":"Woops, something appears to be fucked up. Sorry.",
-                                "color": "#4286f4",
+                                "color": "#42c8f4",
                                 "author_name": "Provided by: CanWeFckingGroup",
                                 "author_link": "",
                                 "author_icon":"",
