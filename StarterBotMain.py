@@ -3,6 +3,8 @@ import time
 import re
 from slackclient import SlackClient
 import API_Getter
+import requests
+import json
 
 # starterbot's ID as an environment variable
 BOT_ID = os.environ.get("BOT_ID")
@@ -47,8 +49,49 @@ def handle_command(command, channel):
                     summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
                     summonerLeaguePoints =  str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
                     displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints + "LP"
+                    summonerRankedInfoTitle = "RANKED INFO FOR THE KID: " + summonerName
+                    attachmentRankedInfo = json.dumps([
+                            {
+                                "fallback":"Woops, something appears to be fucked up. Sorry.",
+                                "color": "#4286f4",
+                                "author_name": "Provided by: CanWeFckingGroup",
+                                "author_link": "",
+                                "author_icon":"",
+                                "title": summonerRankedInfoTitle,
+                                "title_link":"",
+                                "fields": [
+                                    {
+                                        "title": "Summoner Name",
+                                        "value": summonerName,
+                                        "short": "false"
+                                    },
+
+                                    {
+                                        "title": "Tier",
+                                        "value": summonerTier,
+                                        "short": "false"
+                                    },
+                                    {
+                                        "title": "Division",
+                                        "value": summonerDivision,
+                                        "short": "false"
+                                    },
+                                    {
+                                        "title": "League Points",
+                                        "value": summonerLeaguePoints,
+                                        "short": "false"
+                                    }
+
+                                ],
+                                "image_url": "",
+                                "thumb_url": "",
+                                "footer": "Team Shadow Games",
+                                "footer_icon":"",
+                                "ts":123456789
+                    }])
+
                     slack_client.api_call("chat.postMessage", channel=channel,
-                                       text=displayText, as_user=True)
+                                       attachments=attachmentRankedInfo, as_user=True)
         elif slackOption == "l":
             championLoreData = API_Getter.requestChampionLoreData()
             slackValue = re.sub("(^|\s)(\S)", API_Getter.spacedWordsToCamelCase, slackValue).replace(" ","")
