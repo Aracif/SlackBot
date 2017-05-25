@@ -31,8 +31,8 @@ def handle_command(command, channel):
 
         if slackOption == "r":
 
-            slackValue.replace(" ", "").lower()
-
+            slackValue.replace(" ", "")
+            slackValue.lower()
             summonerJSON = API_Getter.requestSummonerData(NA_1, slackValue, ClIENT_IP)
             if "status" in summonerJSON:
                 slack_client.api_call("chat.postMessage", channel=channel,
