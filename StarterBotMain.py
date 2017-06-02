@@ -37,6 +37,100 @@ def handle_command(command, channel):
             if "status" in summonerJSON:
                 slack_client.api_call("chat.postMessage", channel=channel,
                                       text=str(summonerJSON['status']['message']), as_user=True)
+            elif slackValue == "all":
+                f = open("C:\\Users\\ficar\\PycharmProjects\\SlackBot\\TeamShadowGamesMemberList", 'r')
+                for line in f:
+                    summonerJSON = API_Getter.requestSummonerData(NA_1, line.split(" ", 1)[1], ClIENT_IP)
+                    summonerRankedJSON = API_Getter.requestRankedData(NA, (str(summonerJSON['id'])), ClIENT_IP)
+                    summonerName = summonerJSON['name']
+                    summonerID = str(summonerJSON['id'])
+                    summonerTier = summonerRankedJSON[summonerID][0]['tier']
+                    summonerDivision = summonerRankedJSON[summonerID][0]['entries'][0]['division']
+                    summonerLeaguePoints = str(summonerRankedJSON[summonerID][0]['entries'][0]['leaguePoints'])
+                    displayText = summonerName + " is " + summonerTier + " division " + summonerDivision + " with " + summonerLeaguePoints + "LP"
+                    summonerRankedInfoTitle = "RANKED INFO FOR THE KID: " + summonerName
+                attachments = [
+                        {
+                            "fallback": "Woops, something appears to be fucked up. Sorry.",
+                            "color": "#42c8f4",
+                            "author_name": "Provided by: CanWeFckingGroup",
+                            "author_link": "",
+                            "author_icon": "",
+                            "title": summonerRankedInfoTitle,
+                            "title_link": "",
+                            "fields": [
+                                {
+                                    "title": "Summoner Name",
+                                    "value": summonerName,
+                                    "short": "false"
+                                },
+
+                                {
+                                    "title": "Tier",
+                                    "value": summonerTier,
+                                    "short": "false"
+                                },
+                                {
+                                    "title": "Division",
+                                    "value": summonerDivision,
+                                    "short": "false"
+                                },
+                                {
+                                    "title": "League Points",
+                                    "value": summonerLeaguePoints,
+                                    "short": "false"
+                                }
+
+                            ],
+                            "image_url": "",
+                            "thumb_url": "",
+                            "footer": "Team Shadow Games",
+                            "footer_icon": "",
+                            "ts": 123456789
+                        }]
+                    attachmentRankedInfo = json.dumps([
+                        {
+                            "fallback": "Woops, something appears to be fucked up. Sorry.",
+                            "color": "#42c8f4",
+                            "author_name": "Provided by: CanWeFckingGroup",
+                            "author_link": "",
+                            "author_icon": "",
+                            "title": summonerRankedInfoTitle,
+                            "title_link": "",
+                            "fields": [
+                                {
+                                    "title": "Summoner Name",
+                                    "value": summonerName,
+                                    "short": "false"
+                                },
+
+                                {
+                                    "title": "Tier",
+                                    "value": summonerTier,
+                                    "short": "false"
+                                },
+                                {
+                                    "title": "Division",
+                                    "value": summonerDivision,
+                                    "short": "false"
+                                },
+                                {
+                                    "title": "League Points",
+                                    "value": summonerLeaguePoints,
+                                    "short": "false"
+                                }
+
+                            ],
+                            "image_url": "",
+                            "thumb_url": "",
+                            "footer": "Team Shadow Games",
+                            "footer_icon": "",
+                            "ts": 123456789
+                        }])
+
+                    slack_client.api_call("chat.postMessage", channel=channel,
+                                          attachments=attachmentRankedInfo, as_user=True)
+                print("All ranks")
             else:
                 summonerRankedJSON = API_Getter.requestRankedData(NA, (str(summonerJSON['id'])), ClIENT_IP)
                 if "status" in summonerRankedJSON:
